@@ -1,46 +1,60 @@
-import React from "react";
+import React, { useState } from "react";
 import {Button} from "./Button";
+import { TaskType, FilterTypes } from "./App";
 
-type Props={
-    fura:string,
-    tasks: Task[]
+type PropsType = {
+    title: string,
+    tasks: TaskType[]
+    removeTask: (taskId: number) => void
 }
-export type Task={
-    id: number
-    title: string
-    isDone: boolean
-}
-export const Todolist=({fura,tasks}:Props)=>{
-    // const fura= props.fura
+
+export const Todolist = ({title, tasks, removeTask}: PropsType) => {
+
+
+    const [valueForFilter, setValueForFilter] = useState('All')
+
+    const filterTasks = (filterValue: FilterTypes) => {
+        setValueForFilter(filterValue)
+    }
+
+
+    const filteredTasks = () => {
+        let durshlag = tasks
+        //switch
+        if (valueForFilter === 'Active') durshlag = tasks.filter((el) => !el.isDone)
+        if (valueForFilter === 'Completed') durshlag = tasks.filter((el) => el.isDone)
+        return durshlag
+    }
+
+    const pastaCompleted = filteredTasks()
 
     return (
         <div>
-            <h3>{fura}</h3>
+            <h3>{title}</h3>
             <div>
                 <input/>
-                <button>+</button>
+                <Button title={'+'}/>
             </div>
-            <ul>
-                {
-                    !tasks.length
-                    ? <div>EMPTY</div>
-                    :tasks.map(task=>{
-                    //debugger
-                    return (
-                        <li key={task.id}><input type="checkbox" checked={task.isDone}/> <span>{task.title}</span></li>
-                    )
-                })
-            }
-                {/*<li><input type="checkbox" checked={tasks[0].isDone}/> <span>{tasks[0].title}</span></li>*/}
-                {/*<li><input type="checkbox" checked={tasks[1].isDone}/> <span>{tasks[1].title}</span></li>*/}
-                {/*<li><input type="checkbox" checked={tasks[2].isDone}/> <span>{tasks[2].title}</span></li>*/}
-
-            </ul>
-            <div>
-                <Button title={'All'}/>
-                <Button title={'Active'}/>
-                <Button title={'Completed'}/>
+            {
+                pastaCompleted.length === 0
+                    ? <p>EMPTY</p>
+                    : <ul>
+                        {pastaCompleted.map(task => {
+                            //debugger
+                            return (
+                                <li key={task.id}>
+                                    <button onClick={() => removeTask(task.id)}>x</button>
+                                    <input type="checkbox" checked={task.isDone}/>
+                                    <span>{task.title}</span>
+                                </li>
+                            )
+                        })}
+                    </ul>
+                }
+                    <div>
+                        <button onClick={()=>filterTasks('All')}>All</button>
+                        <button onClick={() => filterTasks('Active')}>Active</button>
+                        <button onClick={() => filterTasks('Completed')}>Completed</button>
+                    </div>
             </div>
-        </div>
-    )
-}
+    )}
